@@ -4,3 +4,7 @@ dist
 .env.local
 *.log
 .DS_Store
+*.tsbuildinfo
+supabase/.temp
+vite.config.js
+vite.config.d.ts
