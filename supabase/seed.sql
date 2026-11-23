@@ -1,0 +1,13 @@
+-- Sample leads: real-shaped local businesses without a website, for demo purposes.
+-- Replace agency_id below after your first owner signs up (see README "Run locally").
+-- This file is meant to be run manually once you have a real agency_id, e.g.:
+--   select id from public.agencies limit 1;
+
+-- Example (uncomment and fill in a real agency_id before running):
+-- insert into public.leads (agency_id, business_name, category, area, phone, has_website) values
+-- ('00000000-0000-0000-0000-000000000000', 'N D Locksmith', 'Locksmith', 'Johannesburg', '0791715990', false),
+-- ('00000000-0000-0000-0000-000000000000', 'Apex Plumbing & Drain', 'Plumber', 'Randburg', '0110000001', false),
+-- ('00000000-0000-0000-0000-000000000000', 'Thabo''s Auto Repairs', 'Mechanic', 'Soweto', '0110000002', false),
+-- ('00000000-0000-0000-0000-000000000000', 'Glow Hair & Beauty', 'Salon', 'Sandton', '0110000003', false),
+-- ('00000000-0000-0000-0000-000000000000', 'Mama Nokuthula''s Spaza', 'Spaza shop', 'Alexandra', '0110000004', false),
+-- ('00000000-0000-0000-0000-000000000000', 'Bright Minds Tutoring', 'Tutor', 'Midrand', '0110000005', false);
