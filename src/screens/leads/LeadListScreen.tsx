@@ -29,6 +29,8 @@ export default function LeadListScreen() {
   const [category, setCategory] = useState("");
   const [area, setArea] = useState("");
   const [phone, setPhone] = useState("");
+  const [lat, setLat] = useState("");
+  const [lng, setLng] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -64,11 +66,15 @@ export default function LeadListScreen() {
         category,
         area,
         phone,
+        lat: lat ? Number(lat) : undefined,
+        lng: lng ? Number(lng) : undefined,
       });
       setBusinessName("");
       setCategory("");
       setArea("");
       setPhone("");
+      setLat("");
+      setLng("");
       await load();
     } catch (err) {
       setFormError(err instanceof Error ? err.message : "Could not add lead");
@@ -106,6 +112,9 @@ export default function LeadListScreen() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-on-surface">Leads</h1>
         <div className="flex items-center gap-4">
+          <Link to="/map" className="text-sm text-primary">
+            Map
+          </Link>
           <Link to="/dashboard" className="text-sm text-primary">
             Dashboard
           </Link>
@@ -150,6 +159,20 @@ export default function LeadListScreen() {
           aria-label="Phone"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
+          className="px-3 py-2 border rounded-lg"
+        />
+        <input
+          placeholder="Latitude (optional, for map)"
+          aria-label="Latitude"
+          value={lat}
+          onChange={(e) => setLat(e.target.value)}
+          className="px-3 py-2 border rounded-lg"
+        />
+        <input
+          placeholder="Longitude (optional, for map)"
+          aria-label="Longitude"
+          value={lng}
+          onChange={(e) => setLng(e.target.value)}
           className="px-3 py-2 border rounded-lg"
         />
         <button

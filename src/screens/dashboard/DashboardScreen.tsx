@@ -41,6 +41,9 @@ export default function DashboardScreen() {
           <Link to="/leads" className="text-sm text-primary">
             Leads
           </Link>
+          <Link to="/map" className="text-sm text-primary">
+            Map
+          </Link>
           <Link to="/team/invite" className="text-sm text-primary">
             Invite a caller
           </Link>

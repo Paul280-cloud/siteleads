@@ -50,6 +50,8 @@ const sample = [
     status: "new" as const,
     assigned_to: null,
     assignee: null,
+    lat: null,
+    lng: null,
   },
   {
     id: "2",
@@ -60,6 +62,8 @@ const sample = [
     status: "converted" as const,
     assigned_to: "caller-1",
     assignee: { full_name: "Caller One" },
+    lat: null,
+    lng: null,
   },
 ];
 
