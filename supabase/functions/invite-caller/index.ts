@@ -90,13 +90,15 @@ Deno.serve(async (req) => {
     });
 
     if (insertError) {
+      console.error("profiles insert failed:", insertError);
       // Don't leave a half-created, profile-less auth account behind.
       await admin.auth.admin.deleteUser(data.user.id);
       return json({ error: "Could not create the caller's profile" }, 500);
     }
 
     return json({ id: data.user.id, email: data.user.email });
-  } catch {
+  } catch (err) {
+    console.error("invite-caller crashed:", err);
     return json({ error: "Something went wrong" }, 500);
   }
 });
