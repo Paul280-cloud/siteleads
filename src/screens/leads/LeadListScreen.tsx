@@ -4,11 +4,13 @@ import { useAuth } from "../../context/AuthContext";
 import { logOut } from "../../lib/auth";
 import {
   addLead,
+  assignLead,
   listLeads,
   STATUS_LABELS,
   type Lead,
   type LeadStatus,
 } from "../../lib/leads";
+import { listCallers, type TeamCaller } from "../../lib/team";
 import StatusBadge from "../../components/StatusBadge";
 
 export default function LeadListScreen() {
@@ -16,9 +18,12 @@ export default function LeadListScreen() {
   const navigate = useNavigate();
 
   const [leads, setLeads] = useState<Lead[]>([]);
+  const [callers, setCallers] = useState<TeamCaller[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<LeadStatus | "all">("all");
+  const [assignError, setAssignError] = useState<string | null>(null);
+  const [assigningId, setAssigningId] = useState<string | null>(null);
 
   const [businessName, setBusinessName] = useState("");
   const [category, setCategory] = useState("");
@@ -29,7 +34,12 @@ export default function LeadListScreen() {
 
   const load = useCallback(async () => {
     try {
-      setLeads(await listLeads());
+      const [leadRows, callerRows] = await Promise.all([
+        listLeads(),
+        listCallers(),
+      ]);
+      setLeads(leadRows);
+      setCallers(callerRows);
       setLoadError(null);
     } catch (err) {
       setLoadError(err instanceof Error ? err.message : "Could not load leads");
@@ -70,6 +80,20 @@ export default function LeadListScreen() {
   async function handleLogOut() {
     await logOut();
     navigate("/log-in", { replace: true });
+  }
+
+  async function handleAssign(leadId: string, callerId: string) {
+    if (!callerId) return;
+    setAssignError(null);
+    setAssigningId(leadId);
+    try {
+      await assignLead(leadId, callerId);
+      await load();
+    } catch (err) {
+      setAssignError(err instanceof Error ? err.message : "Could not assign lead");
+    } finally {
+      setAssigningId(null);
+    }
   }
 
   const visible =
@@ -158,6 +182,7 @@ export default function LeadListScreen() {
 
       {loading && <p className="text-on-surface-variant">Loading leads...</p>}
       {loadError && <p className="text-red-600">{loadError}</p>}
+      {assignError && <p className="text-red-600 mb-2">{assignError}</p>}
 
       {!loading && !loadError && visible.length === 0 && (
         <p className="text-on-surface-variant">
@@ -191,7 +216,22 @@ export default function LeadListScreen() {
                     <StatusBadge status={lead.status} />
                   </td>
                   <td className="p-3">
-                    {lead.assignee?.full_name ?? "Unassigned"}
+                    <select
+                      aria-label={`Assign ${lead.business_name}`}
+                      value={lead.assigned_to ?? ""}
+                      disabled={assigningId === lead.id}
+                      onChange={(e) => handleAssign(lead.id, e.target.value)}
+                      className="px-2 py-1 border rounded-lg bg-white text-sm"
+                    >
+                      <option value="" disabled>
+                        {lead.assignee?.full_name ?? "Unassigned"}
+                      </option>
+                      {callers.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.full_name}
+                        </option>
+                      ))}
+                    </select>
                   </td>
                 </tr>
               ))}

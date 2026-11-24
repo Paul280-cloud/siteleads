@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import LeadListScreen from "../src/screens/leads/LeadListScreen";
 import { AuthProvider } from "../src/context/AuthContext";
 import * as leadsLib from "../src/lib/leads";
+import * as teamLib from "../src/lib/team";
 
 vi.mock("../src/lib/auth", () => ({
   getMyProfile: vi.fn().mockResolvedValue({
@@ -21,8 +22,13 @@ vi.mock("../src/lib/leads", async () => {
   const actual = await vi.importActual<typeof import("../src/lib/leads")>(
     "../src/lib/leads",
   );
-  return { ...actual, listLeads: vi.fn(), addLead: vi.fn() };
+  return { ...actual, listLeads: vi.fn(), addLead: vi.fn(), assignLead: vi.fn() };
 });
+
+vi.mock("../src/lib/team", () => ({
+  listCallers: vi.fn(),
+  inviteCaller: vi.fn(),
+}));
 
 function renderScreen() {
   return render(
@@ -57,10 +63,14 @@ const sample = [
   },
 ];
 
+const sampleCallers = [{ id: "caller-1", full_name: "Caller One", email: "caller1@example.com" }];
+
 describe("LeadListScreen", () => {
   beforeEach(() => {
     vi.mocked(leadsLib.listLeads).mockReset();
     vi.mocked(leadsLib.addLead).mockReset();
+    vi.mocked(leadsLib.assignLead).mockReset();
+    vi.mocked(teamLib.listCallers).mockReset().mockResolvedValue(sampleCallers);
   });
 
   it("shows an empty state when there are no leads", async () => {
@@ -75,7 +85,7 @@ describe("LeadListScreen", () => {
     expect(await screen.findByText("Apex Plumbing")).toBeInTheDocument();
     expect(screen.getByText("Glow Hair")).toBeInTheDocument();
     expect(screen.getByText("Unassigned")).toBeInTheDocument();
-    expect(screen.getByText("Caller One")).toBeInTheDocument();
+    expect(screen.getAllByText("Caller One").length).toBeGreaterThan(0);
   });
 
   it("filters the list by status", async () => {
@@ -104,5 +114,37 @@ describe("LeadListScreen", () => {
         businessName: "Bright Minds",
       }),
     );
+  });
+
+  it("assigns an unassigned lead to a caller", async () => {
+    vi.mocked(leadsLib.listLeads).mockResolvedValue(sample);
+    vi.mocked(leadsLib.assignLead).mockResolvedValue();
+    renderScreen();
+    await screen.findByText("Apex Plumbing");
+
+    await userEvent.selectOptions(
+      screen.getByLabelText("Assign Apex Plumbing"),
+      "caller-1",
+    );
+
+    expect(leadsLib.assignLead).toHaveBeenCalledWith("1", "caller-1");
+  });
+
+  it("shows an error if assigning fails", async () => {
+    vi.mocked(leadsLib.listLeads).mockResolvedValue(sample);
+    vi.mocked(leadsLib.assignLead).mockRejectedValue(
+      new Error("Caller not found in your agency"),
+    );
+    renderScreen();
+    await screen.findByText("Apex Plumbing");
+
+    await userEvent.selectOptions(
+      screen.getByLabelText("Assign Apex Plumbing"),
+      "caller-1",
+    );
+
+    expect(
+      await screen.findByText("Caller not found in your agency"),
+    ).toBeInTheDocument();
   });
 });
