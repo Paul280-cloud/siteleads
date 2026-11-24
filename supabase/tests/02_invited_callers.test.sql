@@ -1,5 +1,5 @@
 begin;
-select plan(4);
+select plan(3);
 
 -- Owner A signs up normally: gets their own agency.
 insert into auth.users (id, email, raw_user_meta_data, raw_app_meta_data)
@@ -24,16 +24,15 @@ values (
   '{}'
 );
 
--- C is created by the server (app_metadata), as invite-caller does.
+-- An admin-created user (app_metadata has a "role" key, the way
+-- invite-caller marks it) must NOT get the default owner/agency treatment.
+-- Its profile is created by the Edge Function itself, not this trigger.
 insert into auth.users (id, email, raw_user_meta_data, raw_app_meta_data)
 values (
   'cccccccc-cccc-cccc-cccc-cccccccccccc',
   'caller@example.com',
   '{"full_name":"Caller C"}',
-  jsonb_build_object(
-    'role', 'caller',
-    'agency_id', (select agency_id from public.profiles where id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa')
-  )
+  '{"role":"caller","agency_id":"00000000-0000-0000-0000-000000000000"}'
 );
 
 select is(
@@ -48,16 +47,9 @@ select isnt(
   'user_metadata cannot put a sign-up into another agency'
 );
 
-select is(
-  (select role from public.profiles where id = 'cccccccc-cccc-cccc-cccc-cccccccccccc'),
-  'caller',
-  'app_metadata creates a caller'
-);
-
-select is(
-  (select agency_id from public.profiles where id = 'cccccccc-cccc-cccc-cccc-cccccccccccc'),
-  (select agency_id from public.profiles where id = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'),
-  'invited caller joins the inviting owner''s agency'
+select ok(
+  not exists (select 1 from public.profiles where id = 'cccccccc-cccc-cccc-cccc-cccccccccccc'),
+  'an admin-created user (app_metadata has a role key) gets no profile from this trigger'
 );
 
 select * from finish();

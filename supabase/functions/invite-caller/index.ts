@@ -3,6 +3,12 @@
 // Security: the caller's identity and agency come from their JWT and the
 // profiles table (read with their own token, so RLS applies), never from the
 // request body. The service role key is only used after that check passes.
+//
+// The caller's profile row is inserted here directly (not left to the
+// handle_new_user trigger): Supabase's Auth server does not reliably have
+// app_metadata attached to the new auth.users row at INSERT time, so relying
+// on the trigger to read it was a race condition. See migration
+// 20261124100000_fix_invited_caller_race.sql.
 
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
@@ -61,16 +67,33 @@ Deno.serve(async (req) => {
       return json({ error: "Password must be at least 6 characters" }, 400);
     }
 
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanName = fullName.trim();
+
     const admin = createClient(url, serviceKey);
     const { data, error } = await admin.auth.admin.createUser({
-      email: email.trim().toLowerCase(),
+      email: cleanEmail,
       password,
       email_confirm: true,
-      user_metadata: { full_name: fullName.trim() },
+      user_metadata: { full_name: cleanName },
       app_metadata: { role: "caller", agency_id: profile.agency_id },
     });
 
     if (error) return json({ error: error.message }, 400);
+
+    const { error: insertError } = await admin.from("profiles").insert({
+      id: data.user.id,
+      email: cleanEmail,
+      full_name: cleanName,
+      role: "caller",
+      agency_id: profile.agency_id,
+    });
+
+    if (insertError) {
+      // Don't leave a half-created, profile-less auth account behind.
+      await admin.auth.admin.deleteUser(data.user.id);
+      return json({ error: "Could not create the caller's profile" }, 500);
+    }
 
     return json({ id: data.user.id, email: data.user.email });
   } catch {
