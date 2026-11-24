@@ -53,6 +53,55 @@ export async function assignLead(leadId: string, callerId: string) {
   if (error) throw error;
 }
 
+export type LeadNote = {
+  id: string;
+  note: string;
+  created_at: string;
+};
+
+// RLS: readable by anyone who can read the parent lead (owner in the
+// agency, or the caller it's assigned to).
+export async function listLeadNotes(leadId: string): Promise<LeadNote[]> {
+  const { data, error } = await supabase
+    .from("lead_notes")
+    .select("id, note, created_at")
+    .eq("lead_id", leadId)
+    .order("created_at", { ascending: false });
+
+  if (error) throw error;
+  return data as LeadNote[];
+}
+
+export async function getLead(leadId: string): Promise<Lead> {
+  const { data, error } = await supabase
+    .from("leads")
+    .select(
+      "id, business_name, category, area, phone, status, assigned_to, assignee:profiles!assigned_to(full_name)",
+    )
+    .eq("id", leadId)
+    .single();
+
+  if (error) throw error;
+  return data as unknown as Lead;
+}
+
+// Calls the update_lead_status() database function (security definer): it
+// checks the lead is actually assigned to the caller making the call before
+// changing anything, and inserts the note in the same transaction.
+export async function updateLeadStatus(
+  leadId: string,
+  status: LeadStatus,
+  note: string,
+) {
+  const { error } = await supabase.rpc("update_lead_status", {
+    p_lead_id: leadId,
+    p_status: status,
+    p_note: note || null,
+  });
+
+  if (error) throw error;
+}
+
 export async function addLead(input: {
   agencyId: string;
   businessName: string;
