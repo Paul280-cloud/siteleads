@@ -81,20 +81,34 @@ Deno.serve(async (req) => {
 
     if (error) return json({ error: error.message }, 400);
 
-    const { error: insertError } = await admin.from("profiles").insert({
-      id: data.user.id,
-      email: cleanEmail,
-      full_name: cleanName,
-      role: "caller",
-      agency_id: profile.agency_id,
-    });
+    // Upsert, not insert: Supabase's Auth server does not reliably have
+    // app_metadata attached to the new auth.users row at the instant the
+    // on-insert trigger fires, so sometimes that trigger still creates a
+    // default owner+agency profile for this id before we get here. Upsert
+    // guarantees the final row is always the caller we intended, whichever
+    // order things happened in.
+    const { error: upsertError } = await admin.from("profiles").upsert(
+      {
+        id: data.user.id,
+        email: cleanEmail,
+        full_name: cleanName,
+        role: "caller",
+        agency_id: profile.agency_id,
+      },
+      { onConflict: "id" },
+    );
 
-    if (insertError) {
-      console.error("profiles insert failed:", insertError);
+    if (upsertError) {
+      console.error("profiles upsert failed:", upsertError);
       // Don't leave a half-created, profile-less auth account behind.
       await admin.auth.admin.deleteUser(data.user.id);
       return json({ error: "Could not create the caller's profile" }, 500);
     }
+
+    // If the trigger's race created a stray agency for this new user before
+    // we fixed its profile above, remove that orphaned agency. A caller
+    // never owns an agency.
+    await admin.from("agencies").delete().eq("owner_id", data.user.id);
 
     return json({ id: data.user.id, email: data.user.email });
   } catch (err) {
