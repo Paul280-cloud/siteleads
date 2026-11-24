@@ -40,6 +40,19 @@ export async function listLeads(): Promise<Lead[]> {
   return data as unknown as Lead[];
 }
 
+// Calls the assign_lead() database function (security definer): it checks
+// the caller is an owner and that both the lead and the caller belong to
+// the owner's own agency before making the change. There is no "unassign"
+// in the database function yet, so this only supports assigning to a caller.
+export async function assignLead(leadId: string, callerId: string) {
+  const { error } = await supabase.rpc("assign_lead", {
+    p_lead_id: leadId,
+    p_caller_id: callerId,
+  });
+
+  if (error) throw error;
+}
+
 export async function addLead(input: {
   agencyId: string;
   businessName: string;
