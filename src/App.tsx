@@ -6,6 +6,7 @@ import LeadListScreen from "./screens/leads/LeadListScreen";
 import MyLeadsScreen from "./screens/leads/MyLeadsScreen";
 import UpdateStatusScreen from "./screens/leads/UpdateStatusScreen";
 import InviteCallerScreen from "./screens/team/InviteCallerScreen";
+import DashboardScreen from "./screens/dashboard/DashboardScreen";
 import RequireRole from "./components/RequireRole";
 import { useAuth } from "./context/AuthContext";
 import { Navigate } from "react-router-dom";
@@ -28,6 +29,14 @@ export default function App() {
         element={
           <RequireRole role="owner">
             <LeadListScreen />
+          </RequireRole>
+        }
+      />
+      <Route
+        path="/dashboard"
+        element={
+          <RequireRole role="owner">
+            <DashboardScreen />
           </RequireRole>
         }
       />
