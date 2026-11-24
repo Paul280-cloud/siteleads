@@ -26,6 +26,8 @@ const sampleLead = {
   status: "new" as const,
   assigned_to: "caller-1",
   assignee: { full_name: "Caller One" },
+  lat: null,
+  lng: null,
 };
 
 function renderScreen() {

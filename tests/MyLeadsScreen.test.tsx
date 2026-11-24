@@ -57,6 +57,8 @@ describe("MyLeadsScreen", () => {
         status: "contacted",
         assigned_to: "caller-1",
         assignee: { full_name: "Caller One" },
+        lat: null,
+        lng: null,
       },
     ]);
     renderScreen();

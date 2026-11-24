@@ -24,6 +24,8 @@ export type Lead = {
   status: LeadStatus;
   assigned_to: string | null;
   assignee: { full_name: string } | null;
+  lat: number | null;
+  lng: number | null;
 };
 
 // RLS decides what comes back: owners get every lead in their agency,
@@ -32,7 +34,7 @@ export async function listLeads(): Promise<Lead[]> {
   const { data, error } = await supabase
     .from("leads")
     .select(
-      "id, business_name, category, area, phone, status, assigned_to, assignee:profiles!assigned_to(full_name)",
+      "id, business_name, category, area, phone, status, assigned_to, assignee:profiles!assigned_to(full_name), lat, lng",
     )
     .order("created_at", { ascending: false });
 
@@ -76,7 +78,7 @@ export async function getLead(leadId: string): Promise<Lead> {
   const { data, error } = await supabase
     .from("leads")
     .select(
-      "id, business_name, category, area, phone, status, assigned_to, assignee:profiles!assigned_to(full_name)",
+      "id, business_name, category, area, phone, status, assigned_to, assignee:profiles!assigned_to(full_name), lat, lng",
     )
     .eq("id", leadId)
     .single();
@@ -108,6 +110,8 @@ export async function addLead(input: {
   category?: string;
   area?: string;
   phone?: string;
+  lat?: number;
+  lng?: number;
 }) {
   const { error } = await supabase.from("leads").insert({
     agency_id: input.agencyId,
@@ -115,6 +119,8 @@ export async function addLead(input: {
     category: input.category || null,
     area: input.area || null,
     phone: input.phone || null,
+    lat: input.lat ?? null,
+    lng: input.lng ?? null,
     source: "manual",
   });
 
