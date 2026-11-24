@@ -106,6 +106,9 @@ export default function LeadListScreen() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-on-surface">Leads</h1>
         <div className="flex items-center gap-4">
+          <Link to="/dashboard" className="text-sm text-primary">
+            Dashboard
+          </Link>
           <Link to="/team/invite" className="text-sm text-primary">
             Invite a caller
           </Link>
