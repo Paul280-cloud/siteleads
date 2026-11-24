@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { logOut } from "../../lib/auth";
 import {
@@ -81,9 +81,14 @@ export default function LeadListScreen() {
     <main className="min-h-screen bg-surface p-6 md:p-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-on-surface">Leads</h1>
-        <button onClick={handleLogOut} className="text-sm text-primary">
-          Log out
-        </button>
+        <div className="flex items-center gap-4">
+          <Link to="/team/invite" className="text-sm text-primary">
+            Invite a caller
+          </Link>
+          <button onClick={handleLogOut} className="text-sm text-primary">
+            Log out
+          </button>
+        </div>
       </div>
 
       <form
