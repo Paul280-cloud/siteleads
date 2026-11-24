@@ -4,6 +4,7 @@ import LogInScreen from "./screens/auth/LogInScreen";
 import SignUpScreen from "./screens/auth/SignUpScreen";
 import LeadListScreen from "./screens/leads/LeadListScreen";
 import MyLeadsScreen from "./screens/leads/MyLeadsScreen";
+import UpdateStatusScreen from "./screens/leads/UpdateStatusScreen";
 import InviteCallerScreen from "./screens/team/InviteCallerScreen";
 import RequireRole from "./components/RequireRole";
 import { useAuth } from "./context/AuthContext";
@@ -43,6 +44,14 @@ export default function App() {
         element={
           <RequireRole role="caller">
             <MyLeadsScreen />
+          </RequireRole>
+        }
+      />
+      <Route
+        path="/my-leads/:id"
+        element={
+          <RequireRole role="caller">
+            <UpdateStatusScreen />
           </RequireRole>
         }
       />
