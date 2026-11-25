@@ -4,7 +4,7 @@
 
 - **Live link:** [siteleads.vercel.app](https://siteleads.vercel.app)
 - **Portfolio:** [bheki-portfolio.vercel.app](https://bheki-portfolio.vercel.app)
-- **Loom (pitch + demo):** _add link here once recorded_
+- **Loom (pitch + demo):** [loom.com/share/f9f819e1dd314bdba106c1dbb9f93cf5](https://www.loom.com/share/f9f819e1dd314bdba106c1dbb9f93cf5)
 - **Stitch designs:** [stitch.google.com/projects/11772770869643215744](https://stitch.google.com/projects/11772770869643215744) — see [docs/designs/](./docs/designs/) for exported screens
 - **Repo:** [github.com/Paul280-cloud/siteleads](https://github.com/Paul280-cloud/siteleads)
 
