@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
-import { Link } from "react-router-dom";
 import { inviteCaller, listCallers, type TeamCaller } from "../../lib/team";
+import OwnerNav from "../../components/OwnerNav";
 
 export default function InviteCallerScreen() {
   const [callers, setCallers] = useState<TeamCaller[]>([]);
@@ -49,16 +49,11 @@ export default function InviteCallerScreen() {
 
   return (
     <main className="min-h-screen bg-surface p-6 md:p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-on-surface">Invite a Caller</h1>
-        <Link to="/leads" className="text-sm text-primary">
-          Back to leads
-        </Link>
-      </div>
+      <OwnerNav title="Invite a Caller" />
 
       <form
         onSubmit={handleSubmit}
-        className="bg-white rounded-2xl shadow p-6 mb-6 max-w-md"
+        className="bg-white border border-line p-6 mb-6 max-w-md"
         aria-label="Invite a caller"
       >
         <label className="block text-sm font-medium mb-1" htmlFor="callerName">
@@ -99,29 +94,42 @@ export default function InviteCallerScreen() {
           At least 6 characters. You will share this with the caller yourself.
         </p>
 
-        {error && <p className="text-red-600 text-sm mb-4">{error}</p>}
-        {success && <p className="text-green-700 text-sm mb-4">{success}</p>}
+        {error && (
+          <p className="bg-red-50 text-red-700 text-sm rounded-lg px-3 py-2 mb-4">
+            {error}
+          </p>
+        )}
+        {success && (
+          <p className="bg-green-50 text-green-700 text-sm rounded-lg px-3 py-2 mb-4">
+            {success}
+          </p>
+        )}
 
         <button
           type="submit"
           disabled={saving}
-          className="w-full py-3 rounded-full bg-primary text-white font-semibold disabled:opacity-50"
+          className="w-full py-3 rounded-full bg-primary text-white font-semibold disabled:opacity-50 hover:bg-primary-dark transition-colors"
         >
           {saving ? "Creating..." : "Create caller"}
         </button>
       </form>
 
-      <h2 className="text-lg font-semibold text-on-surface mb-3">Your callers</h2>
+      <h2 className="font-display font-bold text-xl text-on-surface mb-3">Your callers</h2>
       {loadError && <p className="text-red-600">{loadError}</p>}
       {!loadError && callers.length === 0 && (
         <p className="text-on-surface-variant">No callers yet.</p>
       )}
       {callers.length > 0 && (
-        <ul className="bg-white rounded-2xl shadow divide-y max-w-md">
+        <ul className="bg-white border border-line divide-y divide-line max-w-md">
           {callers.map((c) => (
-            <li key={c.id} className="p-4">
-              <p className="font-medium text-on-surface">{c.full_name}</p>
-              <p className="text-sm text-on-surface-variant">{c.email}</p>
+            <li key={c.id} className="p-4 flex items-center gap-3">
+              <span className="w-9 h-9 rounded-full bg-surface-container text-primary font-bold flex items-center justify-center text-sm shrink-0">
+                {c.full_name.charAt(0).toUpperCase()}
+              </span>
+              <div>
+                <p className="font-medium text-on-surface">{c.full_name}</p>
+                <p className="text-sm text-on-surface-variant">{c.email}</p>
+              </div>
             </li>
           ))}
         </ul>

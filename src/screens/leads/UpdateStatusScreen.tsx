@@ -94,9 +94,9 @@ export default function UpdateStatusScreen() {
         Back to My Leads
       </Link>
 
-      <div className="flex items-center justify-between mt-4 mb-6">
+      <div className="flex items-center justify-between mt-4 mb-6 border-b border-line pb-4">
         <div>
-          <h1 className="text-2xl font-bold text-on-surface">
+          <h1 className="font-display font-black text-3xl text-on-surface">
             {lead.business_name}
           </h1>
           <p className="text-sm text-on-surface-variant">
@@ -108,7 +108,7 @@ export default function UpdateStatusScreen() {
 
       <form
         onSubmit={handleSubmit}
-        className="bg-white rounded-2xl shadow p-6 mb-6 max-w-md"
+        className="bg-white border border-line p-6 mb-6 max-w-md"
         aria-label="Update lead status"
       >
         <label className="block text-sm font-medium mb-1" htmlFor="status">
@@ -139,26 +139,32 @@ export default function UpdateStatusScreen() {
           placeholder="What happened on the call?"
         />
 
-        {saveError && <p className="text-red-600 text-sm mb-4">{saveError}</p>}
+        {saveError && (
+          <p className="bg-red-50 text-red-700 text-sm rounded-lg px-3 py-2 mb-4">
+            {saveError}
+          </p>
+        )}
         {saved && (
-          <p className="text-green-700 text-sm mb-4">Saved.</p>
+          <p className="bg-green-50 text-green-700 text-sm rounded-lg px-3 py-2 mb-4">
+            Saved.
+          </p>
         )}
 
         <button
           type="submit"
           disabled={saving}
-          className="w-full py-3 rounded-full bg-primary text-white font-semibold disabled:opacity-50"
+          className="w-full py-3 rounded-full bg-primary text-white font-semibold disabled:opacity-50 hover:bg-primary-dark transition-colors"
         >
           {saving ? "Saving..." : "Save"}
         </button>
       </form>
 
-      <h2 className="text-lg font-semibold text-on-surface mb-3">Notes</h2>
+      <h2 className="font-display font-bold text-xl text-on-surface mb-3">Notes</h2>
       {notes.length === 0 && (
         <p className="text-on-surface-variant">No notes yet.</p>
       )}
       {notes.length > 0 && (
-        <ul className="bg-white rounded-2xl shadow divide-y max-w-md">
+        <ul className="bg-white border border-line divide-y divide-line max-w-md">
           {notes.map((n) => (
             <li key={n.id} className="p-4">
               <p className="text-on-surface">{n.note}</p>

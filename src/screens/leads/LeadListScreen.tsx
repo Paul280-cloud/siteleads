@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { logOut } from "../../lib/auth";
+import OwnerNav from "../../components/OwnerNav";
 import {
   addLead,
   assignLead,
@@ -15,7 +14,6 @@ import StatusBadge from "../../components/StatusBadge";
 
 export default function LeadListScreen() {
   const { profile } = useAuth();
-  const navigate = useNavigate();
 
   const [leads, setLeads] = useState<Lead[]>([]);
   const [callers, setCallers] = useState<TeamCaller[]>([]);
@@ -83,11 +81,6 @@ export default function LeadListScreen() {
     }
   }
 
-  async function handleLogOut() {
-    await logOut();
-    navigate("/log-in", { replace: true });
-  }
-
   async function handleAssign(leadId: string, callerId: string) {
     if (!callerId) return;
     setAssignError(null);
@@ -109,29 +102,16 @@ export default function LeadListScreen() {
 
   return (
     <main className="min-h-screen bg-surface p-6 md:p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-on-surface">Leads</h1>
-        <div className="flex items-center gap-4">
-          <Link to="/map" className="text-sm text-primary">
-            Map
-          </Link>
-          <Link to="/dashboard" className="text-sm text-primary">
-            Dashboard
-          </Link>
-          <Link to="/team/invite" className="text-sm text-primary">
-            Invite a caller
-          </Link>
-          <button onClick={handleLogOut} className="text-sm text-primary">
-            Log out
-          </button>
-        </div>
-      </div>
+      <OwnerNav title="Leads" />
 
       <form
         onSubmit={handleAdd}
-        className="bg-white rounded-2xl shadow p-4 mb-6 grid gap-3 md:grid-cols-5"
+        className="bg-white border border-line p-5 mb-6 grid gap-3 md:grid-cols-5"
         aria-label="Add a lead"
       >
+        <p className="text-xs font-semibold text-on-surface-variant uppercase tracking-wide md:col-span-5 -mb-1">
+          Add a lead
+        </p>
         <input
           required
           placeholder="Business name"
@@ -178,7 +158,7 @@ export default function LeadListScreen() {
         <button
           type="submit"
           disabled={saving}
-          className="py-2 rounded-full bg-primary text-white font-semibold disabled:opacity-50 md:col-span-5"
+          className="py-2.5 rounded-full bg-primary text-white font-semibold disabled:opacity-50 md:col-span-5 hover:bg-primary-dark transition-colors"
         >
           {saving ? "Adding..." : "Add lead"}
         </button>
@@ -217,21 +197,24 @@ export default function LeadListScreen() {
       )}
 
       {visible.length > 0 && (
-        <div className="bg-white rounded-2xl shadow overflow-x-auto">
+        <div className="bg-white border border-line overflow-x-auto">
           <table className="w-full text-left text-sm">
-            <thead className="text-on-surface-variant border-b">
+            <thead className="text-on-surface-variant border-b border-line">
               <tr>
-                <th className="p-3">Business</th>
-                <th className="p-3">Category</th>
-                <th className="p-3">Area</th>
-                <th className="p-3">Phone</th>
-                <th className="p-3">Status</th>
-                <th className="p-3">Assigned to</th>
+                <th className="p-3 font-semibold">Business</th>
+                <th className="p-3 font-semibold">Category</th>
+                <th className="p-3 font-semibold">Area</th>
+                <th className="p-3 font-semibold">Phone</th>
+                <th className="p-3 font-semibold">Status</th>
+                <th className="p-3 font-semibold">Assigned to</th>
               </tr>
             </thead>
             <tbody>
               {visible.map((lead) => (
-                <tr key={lead.id} className="border-b last:border-0">
+                <tr
+                  key={lead.id}
+                  className="border-b border-line last:border-0 hover:bg-surface-container/40 transition-colors"
+                >
                   <td className="p-3 font-medium text-on-surface">
                     {lead.business_name}
                   </td>

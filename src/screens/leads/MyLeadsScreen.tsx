@@ -36,16 +36,31 @@ export default function MyLeadsScreen() {
 
   return (
     <main className="min-h-screen bg-surface p-6 md:p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-on-surface">My Leads</h1>
-        <button onClick={handleLogOut} className="text-sm text-primary">
+      <div className="flex items-center gap-2 mb-6">
+        <span className="w-6 h-6 bg-primary flex items-center justify-center text-surface font-display font-bold text-xs">
+          S
+        </span>
+        <span className="font-display font-bold text-sm tracking-wide text-on-surface">
+          SITELEADS
+        </span>
+      </div>
+
+      <div className="flex justify-between items-end mb-6 border-b border-line pb-4">
+        <div>
+          <h1 className="font-display font-black text-4xl text-on-surface">
+            My Leads
+          </h1>
+          <p className="text-on-surface-variant text-sm mt-1">
+            Welcome, {profile?.full_name}.
+          </p>
+        </div>
+        <button
+          onClick={handleLogOut}
+          className="text-sm font-medium text-on-surface-variant hover:text-on-surface transition-colors"
+        >
           Log out
         </button>
       </div>
-
-      <p className="text-on-surface-variant mb-6">
-        Welcome, {profile?.full_name}.
-      </p>
 
       {loading && <p className="text-on-surface-variant">Loading leads...</p>}
       {loadError && <p className="text-red-600">{loadError}</p>}
@@ -57,12 +72,12 @@ export default function MyLeadsScreen() {
       )}
 
       {leads.length > 0 && (
-        <div className="bg-white rounded-2xl shadow divide-y">
+        <div className="bg-white border border-line divide-y divide-line">
           {leads.map((lead) => (
             <Link
               key={lead.id}
               to={`/my-leads/${lead.id}`}
-              className="flex items-center justify-between p-4 hover:bg-surface-container"
+              className="flex items-center justify-between p-4 hover:bg-surface-container transition-colors"
             >
               <div>
                 <p className="font-medium text-on-surface">

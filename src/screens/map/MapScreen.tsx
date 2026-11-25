@@ -1,10 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { MapContainer, TileLayer, CircleMarker, Popup } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { logOut } from "../../lib/auth";
 import { listLeads, STATUS_LABELS, type Lead } from "../../lib/leads";
 import StatusBadge from "../../components/StatusBadge";
+import OwnerNav from "../../components/OwnerNav";
 
 // Matches the badge colors in StatusBadge.tsx, as hex for map pins.
 const PIN_COLORS: Record<Lead["status"], string> = {
@@ -19,8 +19,6 @@ const PIN_COLORS: Record<Lead["status"], string> = {
 const DEFAULT_CENTER: [number, number] = [-26.2041, 28.0473];
 
 export default function MapScreen() {
-  const navigate = useNavigate();
-
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -40,11 +38,6 @@ export default function MapScreen() {
     load();
   }, [load]);
 
-  async function handleLogOut() {
-    await logOut();
-    navigate("/log-in", { replace: true });
-  }
-
   const located = leads.filter(
     (l): l is Lead & { lat: number; lng: number } =>
       l.lat != null && l.lng != null,
@@ -54,20 +47,7 @@ export default function MapScreen() {
 
   return (
     <main className="min-h-screen bg-surface p-6 md:p-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-on-surface">Map</h1>
-        <div className="flex items-center gap-4">
-          <Link to="/leads" className="text-sm text-primary">
-            Leads
-          </Link>
-          <Link to="/dashboard" className="text-sm text-primary">
-            Dashboard
-          </Link>
-          <button onClick={handleLogOut} className="text-sm text-primary">
-            Log out
-          </button>
-        </div>
-      </div>
+      <OwnerNav title="Map" />
 
       {loading && <p className="text-on-surface-variant">Loading leads...</p>}
       {loadError && <p className="text-red-600">{loadError}</p>}
@@ -81,7 +61,7 @@ export default function MapScreen() {
 
       {!loading && !loadError && (
         <div
-          className="rounded-2xl overflow-hidden shadow"
+          className="border border-line overflow-hidden"
           style={{ height: "70vh" }}
           data-testid="map-container"
         >
@@ -133,9 +113,9 @@ export default function MapScreen() {
         </div>
       )}
 
-      <div className="flex gap-4 mt-4 text-xs text-on-surface-variant">
+      <div className="flex gap-5 mt-4 pt-4 border-t border-line text-xs text-on-surface-variant">
         {Object.entries(STATUS_LABELS).map(([value, label]) => (
-          <span key={value} className="flex items-center gap-1">
+          <span key={value} className="flex items-center gap-1.5">
             <span
               className="inline-block w-2.5 h-2.5 rounded-full"
               style={{ backgroundColor: PIN_COLORS[value as Lead["status"]] }}
